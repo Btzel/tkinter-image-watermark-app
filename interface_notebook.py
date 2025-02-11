@@ -12,7 +12,8 @@ class FrameNotebook:
         # Notebook style
         self.notebook_style()
         # Button style
-        self.button_style()
+        self.add_image_button_style()
+        self.add_image_footer_button_style()
         # Frames notebook
         self.notebook = Notebook(self.root)
         self.notebook.pack(expand=True, fill='both')
@@ -32,9 +33,15 @@ class FrameNotebook:
             self.image_tab,
             image=self.add_button_image,
             command=lambda: self.get_images(root),
+            style="AddImage.TButton"
         )
         self.add_image_button.place(relx=0.5, rely=0.5, anchor="center")
-
+        self.add_image_footer_button = Button(
+            self.image_tab,
+            command=lambda: self.get_images(root),
+            text="Add Images",
+            style="FooterAddImage.TButton"
+        )
 
     def create_new_tab(self,name):
         tab = Frame(self.notebook)
@@ -48,11 +55,11 @@ class FrameNotebook:
             initialdir=initial_dir,
             title='Choose your image files',
             filetypes=[
+                ('All Images', '*.jpeg;*.jpg;*.png;*.webp;*.ico'),
                 ('JPEG', '*.jpeg;*.jpg'),
                 ('PNG', '*.png'),
                 ('WEBP', '*.webp'),
                 ('ICO', '*.ico'),
-                ('All Images', '*.jpeg;*.jpg;*.png;*.webp;*.ico')
             ]
         )
         if not path_list:
@@ -88,15 +95,16 @@ class FrameNotebook:
 
     def add_images(self,root):
         self.add_image_button.place_forget()
+        self.add_image_footer_button.pack(side="bottom",fill="x",padx=10,pady=10)
         res = self.calc_image_b_resolution(root)
         for image in self.image_list:
-            print(image.size)
             img = image.resize(res, Image.Resampling.LANCZOS)
             photo_image = ImageTk.PhotoImage(img)
             image_button = Button(
                 self.image_tab,
                 image=photo_image,
                 command=self.image_tab,
+                style="AddImage.TButton"
             )
             image_button.grid(
                 column=self.images_current_col,
@@ -109,19 +117,37 @@ class FrameNotebook:
             image_button.image = photo_image
             self.image_buttons.append(image_button)
             self.button_images[image_button] = image
+        self.image_list.clear()
 
 
-    def button_style(self):
+
+
+    def add_image_button_style(self):
         self.style.configure(
-            style='TButton',
+            style='AddImage.TButton',
             background="#505050",
             focuscolor="#505050",
             borderwidth=0,
         )
         self.style.map(
-            style='TButton',
+            style='AddImage.TButton',
             background=[
                 ('active', '#505050'),
+            ]
+        )
+    def add_image_footer_button_style(self):
+        self.style.configure(
+            style='FooterAddImage.TButton',
+            background="green",
+            focuscolor="#505050",
+            borderwidth=0,
+
+            font=('Verdana', '20')
+        )
+        self.style.map(
+            style='FooterAddImage.TButton',
+            background=[
+                ('active', '#404040'),
             ]
         )
 

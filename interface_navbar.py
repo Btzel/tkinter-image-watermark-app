@@ -53,7 +53,7 @@ class NavigationBar(Menu):
         root.geometry(f"{window_width}x{window_height}"
                       f"+{x}"
                       f"+{y}")
-        root.after(10,self.resize_notebook)
+        root.after(1,self.resize_notebook)
     def resize_notebook(self):
         self.notebook.resize_image_buttons(self.root)
 
