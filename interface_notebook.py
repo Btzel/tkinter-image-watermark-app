@@ -1,4 +1,5 @@
-from tkinter.ttk import Notebook,Style,Frame,Button
+from tkinter import Canvas
+from tkinter.ttk import Notebook,Style,Frame,Button,Scrollbar,Label
 from tkinter import filedialog
 from PIL import Image,ImageTk
 import os
@@ -19,12 +20,30 @@ class FrameNotebook:
         self.notebook.pack(expand=True, fill='both')
         # Images tab
         self.image_tab = self.create_new_tab("Images")
+
+        self.main_container = Frame(self.image_tab)
+        self.main_container.pack(side="top", fill="both", expand=True)
+        # Canvas
+        self.canvas = Canvas(self.main_container, bg="#505050")
+        self.canvas.pack(side="top", fill="both", expand=True)
+        #Scrollbar
+        self.y_scrollbar = Scrollbar(self.canvas, orient='vertical', command=self.canvas.yview)
+        self.y_scrollbar.pack(side='right', fill='y')
+        #Configure Canvas
+        self.canvas.configure(yscrollcommand=self.y_scrollbar.set)
+        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox('all')))
+
+        #Scrollable frame
+        self.scrollable_frame = Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor='nw')
+        self.scrollable_frame.pack()
+
+        # Image Buttons
         self.images_current_col = 0
         self.images_current_row = 0
         self.image_list = []
         self.image_buttons = []
         self.button_images = {}
-
 
         self.image = Image.open("add_image.png")
         self.image = self.image.resize((200, 200), Image.Resampling.LANCZOS)
@@ -35,12 +54,14 @@ class FrameNotebook:
             command=lambda: self.get_images(root),
             style="AddImage.TButton"
         )
+
         self.add_image_button.place(relx=0.5, rely=0.5, anchor="center")
         self.add_image_footer_button = Button(
             self.image_tab,
             command=lambda: self.get_images(root),
             text="Add Images",
-            style="FooterAddImage.TButton"
+            style="FooterAddImage.TButton",
+
         )
 
     def create_new_tab(self,name):
@@ -101,14 +122,16 @@ class FrameNotebook:
             img = image.resize(res, Image.Resampling.LANCZOS)
             photo_image = ImageTk.PhotoImage(img)
             image_button = Button(
-                self.image_tab,
+                self.scrollable_frame,
                 image=photo_image,
-                command=self.image_tab,
-                style="AddImage.TButton"
+                style="AddImage.TButton",
+
             )
             image_button.grid(
                 column=self.images_current_col,
                 row=self.images_current_row,
+                sticky="nsew",
+                padx=2.3
             )
             self.images_current_col += 1
             if self.images_current_col > 3:
@@ -118,9 +141,6 @@ class FrameNotebook:
             self.image_buttons.append(image_button)
             self.button_images[image_button] = image
         self.image_list.clear()
-
-
-
 
     def add_image_button_style(self):
         self.style.configure(
@@ -133,15 +153,16 @@ class FrameNotebook:
             style='AddImage.TButton',
             background=[
                 ('active', '#505050'),
+                ('hover','#505050'),
+                ('pressed','#505050'),
             ]
         )
     def add_image_footer_button_style(self):
         self.style.configure(
             style='FooterAddImage.TButton',
-            background="green",
+            background="#383938",
             focuscolor="#505050",
             borderwidth=0,
-
             font=('Verdana', '20')
         )
         self.style.map(
@@ -170,9 +191,11 @@ class FrameNotebook:
         self.style.configure(
             style='TFrame',
             background="#505050",
+
         )
         self.style.map(
             style="TNotebook.Tab",
             background=[("selected", "#505050")]
         )
+
 
