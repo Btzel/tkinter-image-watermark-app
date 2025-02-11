@@ -1,10 +1,13 @@
 from tkinter import Menu
+from interface_notebook import FrameNotebook
 
 class NavigationBar(Menu):
     def __init__(self,root):
         super().__init__()
         #Root reference
         self.root = root
+        #Frame Notebook
+        self.notebook = FrameNotebook(self.root)
         #Options
         self.options_menu = Menu(self,tearoff=0)
         #Options-submenus
@@ -38,17 +41,21 @@ class NavigationBar(Menu):
         #Add to navigation bar
         self.add_cascade(label="Options",menu=self.options_menu)
 
-    @staticmethod
-    def change_resolution(root,resolution):
+
+    def change_resolution(self,root,resolution):
         window_width,window_height = resolution[0],resolution[1]
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
+
 
         x = (screen_width // 2) - (window_width // 2)
         y = (screen_height // 2) - (window_height // 2) - 60
         root.geometry(f"{window_width}x{window_height}"
                       f"+{x}"
                       f"+{y}")
+        root.after(10,self.resize_notebook)
+    def resize_notebook(self):
+        self.notebook.resize_image_buttons(self.root)
 
     @staticmethod
     def change_theme(root,color_code):

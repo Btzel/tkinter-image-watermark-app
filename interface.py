@@ -16,9 +16,6 @@ class Interface:
         self.navigation_bar = NavigationBar(self.root)
         self.root.config(menu=self.navigation_bar)
 
-        #Frame Notebook
-        self.notebook = FrameNotebook(self.root)
-
         self.root.mainloop()
 
 
