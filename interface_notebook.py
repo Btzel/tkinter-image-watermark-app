@@ -12,31 +12,28 @@ class FrameNotebook:
         self.style.theme_use("default")
         # Notebook style
         self.notebook_style()
-        # Button style
-        self.add_image_button_style()
-        self.add_image_footer_button_style()
         # Frames notebook
         self.notebook = Notebook(self.root)
         self.notebook.pack(expand=True, fill='both')
         # Images tab
         self.image_tab = self.create_new_tab("Images")
-
+        # Main Container
         self.main_container = Frame(self.image_tab)
         self.main_container.pack(side="top", fill="both", expand=True)
         # Canvas
-        self.canvas = Canvas(self.main_container, bg="#505050")
+        self.canvas = Canvas(self.main_container, bg="#505050",highlightthickness=0)
         self.canvas.pack(side="top", fill="both", expand=True)
         #Scrollbar
         self.y_scrollbar = Scrollbar(self.canvas, orient='vertical', command=self.canvas.yview)
         self.y_scrollbar.pack(side='right', fill='y')
         #Configure Canvas
         self.canvas.configure(yscrollcommand=self.y_scrollbar.set)
-        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox('all')))
+        self.canvas.bind('<Configure>', lambda e: self.update_scroll())
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
         #Scrollable frame
         self.scrollable_frame = Frame(self.canvas)
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor='nw')
-        self.scrollable_frame.pack()
 
         # Image Buttons
         self.images_current_col = 0
@@ -44,6 +41,9 @@ class FrameNotebook:
         self.image_list = []
         self.image_buttons = []
         self.button_images = {}
+        self.image_tab_count = 0
+        self.image_tabs = {}
+        self.image_canvases = {}
 
         self.image = Image.open("add_image.png")
         self.image = self.image.resize((200, 200), Image.Resampling.LANCZOS)
@@ -63,6 +63,13 @@ class FrameNotebook:
             style="FooterAddImage.TButton",
 
         )
+
+    def _on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1 * (event.delta / 90)), "units")
+
+    def update_scroll(self):
+        self.canvas.update_idletasks()
+        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
     def create_new_tab(self,name):
         tab = Frame(self.notebook)
@@ -114,6 +121,21 @@ class FrameNotebook:
             button.configure(image=photo_image)
             button.image = photo_image
 
+    def create_image_tab(self,button_index):
+        print(button_index)
+        self.image_tab_count += 1
+        image_number = self.image_tab_count
+        self.image_buttons[button_index].state(["disabled"])
+        tab = self.create_new_tab(name=("Image" + str(image_number)))
+        #canvas
+        canvas = Canvas(tab, bg="#505050")
+        canvas.pack(side="top", fill="both", expand=True)
+        self.image_tabs[button_index] = tab
+
+
+    def create_image_button_command(self,index):
+        return lambda: self.create_image_tab(button_index=index)
+
     def add_images(self,root):
         self.add_image_button.place_forget()
         self.add_image_footer_button.pack(side="bottom",fill="x",padx=10,pady=10)
@@ -121,17 +143,19 @@ class FrameNotebook:
         for image in self.image_list:
             img = image.resize(res, Image.Resampling.LANCZOS)
             photo_image = ImageTk.PhotoImage(img)
+
             image_button = Button(
                 self.scrollable_frame,
                 image=photo_image,
                 style="AddImage.TButton",
-
             )
+            image_button.configure(command=self.create_image_button_command(len(self.image_buttons)))
             image_button.grid(
                 column=self.images_current_col,
                 row=self.images_current_row,
                 sticky="nsew",
-                padx=2.3
+                padx=2.3,
+                pady=2.3
             )
             self.images_current_col += 1
             if self.images_current_col > 3:
@@ -141,23 +165,9 @@ class FrameNotebook:
             self.image_buttons.append(image_button)
             self.button_images[image_button] = image
         self.image_list.clear()
+        self.update_scroll()
 
-    def add_image_button_style(self):
-        self.style.configure(
-            style='AddImage.TButton',
-            background="#505050",
-            focuscolor="#505050",
-            borderwidth=0,
-        )
-        self.style.map(
-            style='AddImage.TButton',
-            background=[
-                ('active', '#505050'),
-                ('hover','#505050'),
-                ('pressed','#505050'),
-            ]
-        )
-    def add_image_footer_button_style(self):
+    def notebook_style(self):
         self.style.configure(
             style='FooterAddImage.TButton',
             background="#383938",
@@ -171,8 +181,20 @@ class FrameNotebook:
                 ('active', '#404040'),
             ]
         )
-
-    def notebook_style(self):
+        self.style.configure(
+            style='AddImage.TButton',
+            background="#505050",
+            focuscolor="#505050",
+            borderwidth=0,
+        )
+        self.style.map(
+            style='AddImage.TButton',
+            background=[
+                ('active', '#505050'),
+                ('hover', '#505050'),
+                ('pressed', '#505050'),
+            ]
+        )
         self.style.configure(
             style='TNotebook',
             background='#212121',
