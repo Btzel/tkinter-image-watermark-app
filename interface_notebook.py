@@ -1,17 +1,16 @@
 from tkinter import Canvas
-from tkinter.ttk import Notebook,Style,Frame,Button,Scrollbar,Label
+from tkinter.ttk import Notebook,Style,Frame,Button,Scrollbar
 from tkinter import filedialog
 from PIL import Image,ImageTk
 import os
+from notebook_style import NotebookStyle
 class FrameNotebook:
     def __init__(self,root):
         # Root reference
         self.root = root
-        # Style
-        self.style = Style()
-        self.style.theme_use("default")
         # Notebook style
-        self.notebook_style()
+        self.notebook_style = NotebookStyle()
+        self.notebook_style.change_style("dark")
         # Frames notebook
         self.notebook = Notebook(self.root)
         self.notebook.pack(expand=True, fill='both')
@@ -41,9 +40,8 @@ class FrameNotebook:
         self.image_list = []
         self.image_buttons = []
         self.button_images = {}
-        self.image_tab_count = 0
-        self.image_tabs = {}
-        self.image_canvases = {}
+        self.photo_images = {}
+
 
         self.image = Image.open("add_image.png")
         self.image = self.image.resize((200, 200), Image.Resampling.LANCZOS)
@@ -63,6 +61,11 @@ class FrameNotebook:
             style="FooterAddImage.TButton",
 
         )
+
+        #image tab
+        self.image_tab_count = 0
+        self.image_tabs = {}
+
 
     def _on_mousewheel(self, event):
         self.canvas.yview_scroll(int(-1 * (event.delta / 90)), "units")
@@ -127,12 +130,49 @@ class FrameNotebook:
         image_number = self.image_tab_count
         self.image_buttons[button_index].state(["disabled"])
         tab = self.create_new_tab(name=("Image" + str(image_number)))
+
         #canvas
-        canvas = Canvas(tab, bg="#505050")
-        canvas.pack(side="top", fill="both", expand=True)
-        self.image_tabs[button_index] = tab
+        window_width = self.root.winfo_width()
+        window_height = self.root.winfo_height()
+        canvas_width = int((70 / 100) * window_width)
+        canvas_height = int(window_height)
+        canvas = Canvas(tab,
+                        bg="#505050",
+                        width=canvas_width,
+                        height=canvas_height)
+        canvas.pack(side="left", fill="both", expand=False)
 
+        original_image = self.button_images[self.image_buttons[button_index]]
+        image = self.scale_image(image = original_image,canvas_res=(canvas_width,canvas_height))
 
+        self.photo_images[button_index] = ImageTk.PhotoImage(image)
+        canvas.create_image(canvas_width/2, canvas_height/2, image=self.photo_images[button_index],anchor="center")
+
+        self.image_tabs[tab] = [original_image,canvas]
+
+    @staticmethod
+    def scale_image(image,canvas_res):
+        image_width, image_height = image.size
+        bigger_dimension = max(image_width, image_height)
+        minor_dimension = min(image_width, image_height)
+        if image_width == bigger_dimension:
+            canvas_major_dimension = canvas_res[0]
+            canvas_minor_dimension = canvas_res[1]
+        elif image_height == bigger_dimension:
+            canvas_major_dimension = canvas_res[1]
+            canvas_minor_dimension = canvas_res[0]
+        else:
+            canvas_major_dimension = image_width
+            canvas_minor_dimension = image_height
+        scale_factor = canvas_major_dimension / bigger_dimension
+        new_image_width = int(image_width * scale_factor)
+        new_image_height = int(image_height * scale_factor)
+        if new_image_width > canvas_res[0] or new_image_height > canvas_res[1]:
+            scale_factor = canvas_minor_dimension / minor_dimension
+            new_image_width = int(image_width * scale_factor)
+            new_image_height = int(image_height * scale_factor)
+        image = image.resize((new_image_width, new_image_height), Image.Resampling.LANCZOS)
+        return image
     def create_image_button_command(self,index):
         return lambda: self.create_image_tab(button_index=index)
 
@@ -167,57 +207,6 @@ class FrameNotebook:
         self.image_list.clear()
         self.update_scroll()
 
-    def notebook_style(self):
-        self.style.configure(
-            style='FooterAddImage.TButton',
-            background="#383938",
-            focuscolor="#505050",
-            borderwidth=0,
-            font=('Verdana', '20')
-        )
-        self.style.map(
-            style='FooterAddImage.TButton',
-            background=[
-                ('active', '#404040'),
-            ]
-        )
-        self.style.configure(
-            style='AddImage.TButton',
-            background="#505050",
-            focuscolor="#505050",
-            borderwidth=0,
-        )
-        self.style.map(
-            style='AddImage.TButton',
-            background=[
-                ('active', '#505050'),
-                ('hover', '#505050'),
-                ('pressed', '#505050'),
-            ]
-        )
-        self.style.configure(
-            style='TNotebook',
-            background='#212121',
-            padding=(5, 5),
-            borderwidth=0
-        )
-        self.style.configure(
-            style='TNotebook.Tab',
-            background='#383938',
-            foreground='#FFFFFF',
-            focuscolor="#505050",
-            font=('Verdana', '11', 'italic'),
-            padding=(15, 3),
-            borderwidth=0,
-        )
-        self.style.configure(
-            style='TFrame',
-            background="#505050",
 
-        )
-        self.style.map(
-            style="TNotebook.Tab",
-            background=[("selected", "#505050")]
-        )
 
 
