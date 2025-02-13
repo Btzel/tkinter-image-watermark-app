@@ -1,9 +1,10 @@
 from tkinter import Canvas
-from tkinter.ttk import Notebook,Style,Frame,Button,Scrollbar
+from tkinter.ttk import Notebook,Frame,Button,Scrollbar
 from tkinter import filedialog
 from PIL import Image,ImageTk
 import os
 from notebook_style import NotebookStyle
+
 class FrameNotebook:
     def __init__(self,root):
         # Root reference
@@ -41,7 +42,6 @@ class FrameNotebook:
         self.image_buttons = []
         self.button_images = {}
         self.photo_images = {}
-
 
         self.image = Image.open("add_image.png")
         self.image = self.image.resize((200, 200), Image.Resampling.LANCZOS)
@@ -125,54 +125,18 @@ class FrameNotebook:
             button.image = photo_image
 
     def create_image_tab(self,button_index):
-        print(button_index)
+        from image_tab import ImageTab
+
         self.image_tab_count += 1
         image_number = self.image_tab_count
         self.image_buttons[button_index].state(["disabled"])
-        tab = self.create_new_tab(name=("Image" + str(image_number)))
 
-        #canvas
-        window_width = self.root.winfo_width()
-        window_height = self.root.winfo_height()
-        canvas_width = int((70 / 100) * window_width)
-        canvas_height = int(window_height)
-        canvas = Canvas(tab,
-                        bg="#505050",
-                        width=canvas_width,
-                        height=canvas_height)
-        canvas.pack(side="left", fill="both", expand=False)
+        tab=ImageTab(root=self.root,
+                 notebook=self,
+                 image_number=image_number,
+                 button_index=button_index)
 
-        original_image = self.button_images[self.image_buttons[button_index]]
-        image = self.scale_image(image = original_image,canvas_res=(canvas_width,canvas_height))
 
-        self.photo_images[button_index] = ImageTk.PhotoImage(image)
-        canvas.create_image(canvas_width/2, canvas_height/2, image=self.photo_images[button_index],anchor="center")
-
-        self.image_tabs[tab] = [original_image,canvas]
-
-    @staticmethod
-    def scale_image(image,canvas_res):
-        image_width, image_height = image.size
-        bigger_dimension = max(image_width, image_height)
-        minor_dimension = min(image_width, image_height)
-        if image_width == bigger_dimension:
-            canvas_major_dimension = canvas_res[0]
-            canvas_minor_dimension = canvas_res[1]
-        elif image_height == bigger_dimension:
-            canvas_major_dimension = canvas_res[1]
-            canvas_minor_dimension = canvas_res[0]
-        else:
-            canvas_major_dimension = image_width
-            canvas_minor_dimension = image_height
-        scale_factor = canvas_major_dimension / bigger_dimension
-        new_image_width = int(image_width * scale_factor)
-        new_image_height = int(image_height * scale_factor)
-        if new_image_width > canvas_res[0] or new_image_height > canvas_res[1]:
-            scale_factor = canvas_minor_dimension / minor_dimension
-            new_image_width = int(image_width * scale_factor)
-            new_image_height = int(image_height * scale_factor)
-        image = image.resize((new_image_width, new_image_height), Image.Resampling.LANCZOS)
-        return image
     def create_image_button_command(self,index):
         return lambda: self.create_image_tab(button_index=index)
 

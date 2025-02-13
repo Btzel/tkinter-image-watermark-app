@@ -1,6 +1,5 @@
 from tkinter import Menu
 from interface_notebook import FrameNotebook
-from PIL import Image,ImageTk
 class NavigationBar(Menu):
     def __init__(self,root):
         super().__init__()
@@ -41,26 +40,16 @@ class NavigationBar(Menu):
         #Add to navigation bar
         self.add_cascade(label="Options",menu=self.options_menu)
 
-
     def change_resolution(self,root,resolution):
         window_width,window_height = resolution[0],resolution[1]
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
         canvas_width = int((70 / 100) * window_width)
         canvas_height = int(window_height)
-        for tab,tab_data in self.notebook.image_tabs.items():
-            image,canvas = tab_data
-            canvas.configure(width=canvas_width,
-                             height=canvas_height)
-            canvas.delete("all")
+        for tab,_ in self.notebook.image_tabs.items():
+            if tab:
+                tab.update_canvas(canvas_width,canvas_height)
 
-            image = self.notebook.scale_image(image=image,canvas_res=(canvas_width,canvas_height))
-            photo_image = ImageTk.PhotoImage(image)
-            canvas.create_image(canvas_width / 2, canvas_height / 2,
-                                image=photo_image,
-                                anchor="center")
-            canvas.image = photo_image
-            self.notebook.image_tabs[tab] = [image,canvas]
 
         x = (screen_width // 2) - (window_width // 2)
         y = (screen_height // 2) - (window_height // 2) - 60
