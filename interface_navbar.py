@@ -45,7 +45,7 @@ class NavigationBar(Menu):
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
         canvas_width = int((70 / 100) * window_width)
-        canvas_height = int(window_height)
+        canvas_height = int(window_height)-40
         for tab,_ in self.notebook.image_tabs.items():
             if tab:
                 tab.update_canvas(canvas_width,canvas_height)

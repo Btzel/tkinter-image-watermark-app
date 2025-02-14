@@ -1,24 +1,26 @@
 from tkinter.ttk import Frame,Label,Style,Entry,Button,Combobox,Scale
 from tkinter import Canvas,StringVar,colorchooser,font
 
-
-
 class ImagePanel:
-    def __init__(self,tab,image_number,image_size):
+    def __init__(self,tab,image_number,canvas_size,image_size,canvas_modifier):
         #parent tab
         self.tab = tab
         self.color = "#FFFFFF"
         self.unique_style_name = "_" + str(image_number)
         self.image_size = image_size
+        self.canvas_size = canvas_size
+        self.canvas_modifier = canvas_modifier
+        self.current_text = ""
         #panel style
         self.style = Style()
         self.panel_style()
         #canvas
-
         self.canvas = Canvas(self.tab,highlightthickness=0)
         self.canvas.pack(side="right", fill="both", expand=True,padx=(5,0))
+
         #main frame
         self.main_frame = Frame(self.canvas,style="Main.TFrame")
+        ####### on_canvas_resize
         self.canvas_window = self.canvas.create_window(2, 2, window=self.main_frame, anchor="nw")
         self.main_frame.pack_propagate(False)
         self.canvas.bind('<Configure>', self.on_canvas_resize)
@@ -41,6 +43,7 @@ class ImagePanel:
                                style="Text.TLabel")
         self.text_text.grid(column=0, row=0,sticky="w",padx=(10,10),pady=(10,10))
         self.text_input = StringVar()
+        self.text_input.trace_add("write", self.on_text_change)
         self.text_entry = Entry(self.text_frame,
                                 textvariable=self.text_input,
                                 justify="left")
@@ -119,10 +122,11 @@ class ImagePanel:
                                    font=("Verdana",10,"bold"),
                                    style="OffsetX.TLabel")
         self.offset_x_text.grid(column=0,row=0,sticky="w",padx=10,pady=10)
-        self.offset_x_value = self.image_size[0]/2
+        self.offset_x_value = self.canvas_size[0]/2
+
         self.offset_x_slider = Scale(self.offset_x_frame,
-                                     from_=0,
-                                     to=self.image_size[0],
+                                     from_=self.offset_x_value - self.image_size[0]/2,
+                                     to=self.offset_x_value + self.image_size[0]/2,
                                      orient="horizontal",
                                      length=200,
                                      value=self.offset_x_value)
@@ -137,10 +141,10 @@ class ImagePanel:
                                    font=("Verdana", 10, "bold"),
                                    style="OffsetY.TLabel")
         self.offset_y_text.grid(column=0, row=0, sticky="w", padx=10, pady=10)
-        self.offset_y_value = self.image_size[1] / 2
+        self.offset_y_value = self.canvas_size[1]/2
         self.offset_y_slider = Scale(self.offset_y_frame,
-                                     from_=0,
-                                     to=self.image_size[1],
+                                     from_=self.offset_y_value - self.image_size[1]/2,
+                                     to=self.offset_y_value + self.image_size[1]/2,
                                      orient="horizontal",
                                      length=200,
                                      value=self.offset_y_value)
@@ -155,33 +159,15 @@ class ImagePanel:
                                    font=("Verdana",10,"bold"),
                                    style="Rotation.TLabel")
         self.rotation_text.grid(column=0,row=0,sticky="w",padx=10,pady=10)
-        self.rotation_value = 0
+        self.rotation_value = 360
         self.rotation_slider = Scale(self.rotation_frame,
-                                     from_=-180,
-                                     to=180,
+                                     from_=360,
+                                     to=0,
                                      orient="horizontal",
                                      length=200,
                                      value=self.rotation_value)
         self.rotation_slider.bind('<B1-Motion>',self.on_rotation_slider_move)
         self.rotation_slider.grid(column=1,row=0,sticky="we",padx=10,pady=10)
-        #Opacity
-        self.opacity_frame = Frame(self.main_frame,style="Opacity.TFrame")
-        self.opacity_frame.pack(side="top",fill="x",expand=False,pady=5,padx=10)
-        self.opacity_frame.grid_columnconfigure(index = 1,weight=1)
-        self.opacity_text = Label(self.opacity_frame,
-                                  text="Opacity",
-                                  font=("Verdana",10,"bold"),
-                                  style="Opacity.TLabel")
-        self.opacity_text.grid(column=0,row=0,sticky="w",padx=10,pady=10)
-        self.opacity_value = 1
-        self.opacity_slider = Scale(self.opacity_frame,
-                                    from_=0,
-                                    to=1,
-                                    orient="horizontal",
-                                    length=200,
-                                    value=self.opacity_value)
-        self.opacity_slider.bind('<B1-Motion>',self.on_opacity_slider_move)
-        self.opacity_slider.grid(column=1,row=0,sticky="we",padx=10,pady=10)
         #Tile, spacing, back button and forward button will be developed after canvas parts are done
         #Tile
 
@@ -201,38 +187,36 @@ class ImagePanel:
                                   command=self.save_image)
         self.save_button.grid(column=0,row=0,sticky="we",pady=10)
 
-        
-    def save_image(self):
-        #will be developed after canvas modifier
-        pass
+        self.params = [self.offset_x_value,
+                       self.offset_y_value,
+                       self.current_text,
+                       self.color,
+                       self.font_combobox.get(),
+                       self.font_size_value,
+                       self.rotation_value]
 
-    def on_opacity_slider_move(self,event):
-        self.opacity_value = float(self.opacity_slider.get())
-        print(self.opacity_value)
-        #also change canvas text after canvas modifier
-    def on_rotation_slider_move(self,event):
-        self.rotation_value = float(self.rotation_slider.get())
-        print(self.rotation_value) 
-        #also change canvas text after canvas modifier
+
+        
+    def update_canvas_modifier(self):
+        self.canvas_modifier.update_text(params=self.params)
+
+    def on_offset_x_slider_move(self,event):
+        self.offset_x_value = float(self.offset_x_slider.get())
+        self.params[0] = self.offset_x_value
+        print(self.offset_x_value)
+        self.update_canvas_modifier()
 
     def on_offset_y_slider_move(self,event):
         self.offset_y_value = float(self.offset_y_slider.get())
+        self.params[1] = self.offset_y_value
         print(self.offset_y_value)
-        #also change canvas text after canvas modifier
-    def on_offset_x_slider_move(self,event):
-        self.offset_x_value = float(self.offset_x_slider.get())
-        print(self.offset_x_value)
-        #also change canvas text after canvas modifier
+        self.update_canvas_modifier()
 
-    def on_font_size_slider_move(self,event):
-        self.font_size_value = int(float(self.font_size_slider.get()))
-        self.font_size_value_text.configure(text=f"{self.font_size_value:3d}")
-        #also change canvas text after canvas modifier
-
-    def on_font_change(self,event):
-        self.selected_font = self.font_combobox.get()
-        self.text_entry.configure(font=(self.selected_font,11))
-        #also change canvas text after canvas modifier
+    def on_text_change(self, var_name, var_index, var_mode):
+        self.current_text = self.text_input.get()
+        self.params[2] = self.current_text
+        print(self.current_text)
+        self.update_canvas_modifier()
 
     def choose_color(self):
         self.color = colorchooser.askcolor(title="Choose color")[1]
@@ -240,6 +224,32 @@ class ImagePanel:
             style=f"ColorPrev{self.unique_style_name}.TLabel",
             background=self.color
         )
+        self.params[3] = self.color
+        self.update_canvas_modifier()
+
+
+    def on_font_change(self,event):
+        self.selected_font = self.font_combobox.get()
+        self.text_entry.configure(font=(self.selected_font,11))
+        self.params[4] = self.selected_font
+        self.update_canvas_modifier()
+
+    def on_font_size_slider_move(self,event):
+        self.font_size_value = int(float(self.font_size_slider.get()))
+        self.font_size_value_text.configure(text=f"{self.font_size_value:3d}")
+        self.params[5] = self.font_size_value
+        self.update_canvas_modifier()
+
+    def on_rotation_slider_move(self,event):
+        self.rotation_value = int(float(self.rotation_slider.get()))
+        print(self.rotation_value) 
+        self.params[6] = self.rotation_value
+        self.update_canvas_modifier()
+
+    def save_image(self):
+        # will be developed after canvas modifier
+        pass
+
         #also change canvas text after canvas modifier
     def on_canvas_resize(self, event):
         width = event.width - 4
@@ -409,16 +419,7 @@ class ImagePanel:
             foreground="#FFFFFF"
         )
 
-        self.style.configure(
-            style="Opacity.TFrame",
-            background="#383938"
-        )
 
-        self.style.configure(
-            style="Opacity.TLabel",
-            background="#383938",
-            foreground="#FFFFFF"
-        )
 
 
 

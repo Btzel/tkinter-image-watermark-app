@@ -1,5 +1,6 @@
 from interface_notebook import Canvas,ImageTk,Image
 from image_panel import ImagePanel
+from canvas_modifier import CanvasModifier
 class ImageTab:
     def __init__(self,root,notebook,image_number,button_index):
         self.root = root
@@ -12,17 +13,26 @@ class ImageTab:
         window_width = self.root.winfo_width()
         window_height = self.root.winfo_height()
         canvas_width = int((70 / 100) * window_width)
-        canvas_height = int(window_height)
+        canvas_height = int(window_height)-40
+        canvas_size = (canvas_width,canvas_height)
         # canvas
         self.canvas = Canvas(self.tab,
                         bg="#505050",
                         width=canvas_width,
                         height=canvas_height)
+
+
         self.canvas.pack(side="left", fill="both", expand=False)
-        self.canvas_image,self.image_size = self.update_canvas(canvas_width,canvas_height)
+        self.canvas_image, self.image_size = self.update_canvas(canvas_width, canvas_height)
+
+
+        #canvas modifier
+        self.canvas_modifier = CanvasModifier(self.canvas,canvas_size)
 
         #panel
-        self.panel = ImagePanel(self.tab,image_number,self.image_size)
+        self.panel = ImagePanel(self.tab,image_number,
+                                canvas_size,
+                                self.image_size,self.canvas_modifier)
 
 
     @staticmethod
@@ -60,4 +70,5 @@ class ImageTab:
                                  anchor="center")
         self.canvas.image = self.notebook.photo_images[self.button_index]
         self.notebook.image_tabs[self] = [self.original_image, self.canvas]
+
         return image,image.size

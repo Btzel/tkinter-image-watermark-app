@@ -1,6 +1,6 @@
 from tkinter import Tk
 from interface_navbar import NavigationBar
-from interface_notebook import FrameNotebook
+
 class Interface:
     def __init__(self,resolution):
         #Main root
