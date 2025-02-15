@@ -168,14 +168,43 @@ class ImagePanel:
                                      value=self.rotation_value)
         self.rotation_slider.bind('<B1-Motion>',self.on_rotation_slider_move)
         self.rotation_slider.grid(column=1,row=0,sticky="we",padx=10,pady=10)
-        #Tile, spacing, back button and forward button will be developed after canvas parts are done
         #Tile
+        self.tile_frame = Frame(self.main_frame, style="Tile.TFrame")
+        self.tile_frame.pack(side="top",fill="x",expand=False,pady=5,padx=10)
+        self.tile_frame.grid_columnconfigure(index=1,weight=1)
+        self.tile_text = Label(self.tile_frame,
+                               text="Tile",
+                               font=("Verdana",10,"bold"),
+                               style="Tile.TLabel")
+        self.tile_text.grid(column=0,row=0,sticky="w",padx=10,pady=10)
+        self.tiles = ["No Tile","Repeated Grid"]
+        self.tile_combobox = Combobox(self.tile_frame,
+                                      values=self.tiles,
+                                      state="readonly",
+                                      style="Tile.TCombobox")
+        self.tile = self.tiles[0]
+        self.tile_combobox.set(self.tile)
+        self.tile_combobox.bind('<<ComboboxSelected>>', self.on_tile_change)
+        self.tile_combobox.grid(column=1, row=0, sticky="we", padx=10)
 
         #Spacing
+        self.spacing_frame = Frame(self.main_frame,style="Spacing.TFrame")
 
-        #Back Button
-
-        #Forward Button
+        self.spacing_frame.grid_columnconfigure(index=1,weight=1)
+        self.spacing_text = Label(self.spacing_frame,
+                                  text="Spacing",
+                                  font=("Verdana",10,"bold"),
+                                  style="Spacing.TLabel")
+        self.spacing_text.grid(column=0,row=0,sticky="w",padx=10,pady=10)
+        self.spacing_value = 11
+        self.spacing_slider = Scale(self.spacing_frame,
+                                    from_ = 20,
+                                    to = 2,
+                                    orient="horizontal",
+                                    length=200,
+                                    value=self.spacing_value)
+        self.spacing_slider.bind('<B1-Motion>',self.on_spacing_slider_move)
+        self.spacing_slider.grid(column=1, row=0, sticky="we", padx=10, pady=10)
 
         #Save Button
         self.save_frame = Frame(self.main_frame,style="Save.TFrame")
@@ -195,10 +224,20 @@ class ImagePanel:
                        self.font_size_value,
                        self.rotation_value]
 
-
-        
     def update_canvas_modifier(self):
         self.canvas_modifier.update_text(params=self.params)
+
+    def on_tile_change(self,event):
+        self.tile = self.tile_combobox.get()
+        if self.tile == "No Tile":
+            self.canvas_modifier.create_untiled_text()
+            self.spacing_frame.pack_forget()
+        elif self.tile == "Repeated Grid":
+            self.save_frame.pack_forget()
+            self.spacing_frame.pack(side="top",fill="x",expand=False,pady=5,padx=10)
+            self.save_frame.pack(side="top", fill="x", expand=False, pady=5, padx=10)
+            self.canvas_modifier.create_repeating_grid_text()
+
 
     def on_offset_x_slider_move(self,event):
         self.offset_x_value = float(self.offset_x_slider.get())
@@ -245,6 +284,13 @@ class ImagePanel:
         print(self.rotation_value) 
         self.params[6] = self.rotation_value
         self.update_canvas_modifier()
+
+    def on_spacing_slider_move(self,event):
+        if self.tile != "No Tile":
+            self.spacing_value = int(float(self.spacing_slider.get()))
+            print(self.spacing_value)
+            self.canvas_modifier.update_spacing(self.spacing_value)
+            self.update_canvas_modifier()
 
     def save_image(self):
         # will be developed after canvas modifier
@@ -368,6 +414,30 @@ class ImagePanel:
         )
 
         self.style.configure(
+            style="Tile.TFrame",
+            background="#383938"
+        )
+
+        self.style.configure(
+            style="Tile.TLabel",
+            background="#383938",
+            foreground="#FFFFFF"
+        )
+
+        self.style.configure(
+            style="Tile.TCombobox",
+            fieldbackground="#FFFFFF",
+            background="#FFFFFF",
+            foreground="#000000"
+        )
+        self.style.map(
+            'Tile.TCombobox',
+            fieldbackground=[('readonly', '#FFFFFF')],
+            selectbackground=[('readonly', '#FFFFFF')],
+            selectforeground=[('readonly', '#000000')]
+        )
+
+        self.style.configure(
             style="FontSize.TFrame",
             background="#383938"
         )
@@ -418,6 +488,18 @@ class ImagePanel:
             background="#383938",
             foreground="#FFFFFF"
         )
+
+        self.style.configure(
+            style="Spacing.TFrame",
+            background="#383938"
+        )
+
+        self.style.configure(
+            style="Spacing.TLabel",
+            background="#383938",
+            foreground="#FFFFFF"
+        )
+
 
 
 

@@ -27,7 +27,7 @@ class ImageTab:
 
 
         #canvas modifier
-        self.canvas_modifier = CanvasModifier(self.canvas,canvas_size)
+        self.canvas_modifier = CanvasModifier(self.canvas,canvas_size,self.image_size)
 
         #panel
         self.panel = ImagePanel(self.tab,image_number,
