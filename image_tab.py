@@ -14,7 +14,7 @@ class ImageTab:
         window_height = self.root.winfo_height()
         canvas_width = int((70 / 100) * window_width)
         canvas_height = int(window_height)-40
-        canvas_size = (canvas_width,canvas_height)
+        self.canvas_size = (canvas_width,canvas_height)
         # canvas
         self.canvas = Canvas(self.tab,
                         bg="#505050",
@@ -23,15 +23,18 @@ class ImageTab:
 
 
         self.canvas.pack(side="left", fill="both", expand=False)
+        self.canvas_image = None
+        self.canvas_modifier = None
+        self.panel = None
         self.canvas_image, self.image_size = self.update_canvas(canvas_width, canvas_height)
 
 
         #canvas modifier
-        self.canvas_modifier = CanvasModifier(self.canvas,canvas_size,self.image_size)
+        self.canvas_modifier = CanvasModifier(self.canvas,self.canvas_size,self.image_size)
 
         #panel
         self.panel = ImagePanel(self.tab,image_number,
-                                canvas_size,
+                                self.canvas_size,
                                 self.image_size,self.canvas_modifier)
 
 
@@ -60,15 +63,27 @@ class ImageTab:
         return image
 
     def update_canvas(self,canvas_width,canvas_height):
+        self.canvas_size = (canvas_width,canvas_height)
         self.canvas.configure(width=canvas_width,
                          height=canvas_height)
         self.canvas.delete("all")
         image = self.scale_image(image=self.original_image, canvas_res=(canvas_width, canvas_height))
+        self.image_size = image.size
         self.notebook.photo_images[self.button_index] = ImageTk.PhotoImage(image)
         self.canvas.create_image(canvas_width / 2, canvas_height / 2,
                                  image=self.notebook.photo_images[self.button_index],
                                  anchor="center")
         self.canvas.image = self.notebook.photo_images[self.button_index]
         self.notebook.image_tabs[self] = [self.original_image, self.canvas]
-
+        if self.canvas_modifier and self.panel:
+            self.canvas_modifier.__init__(self.canvas,self.canvas_size,self.image_size)
+            self.panel.offset_x_slider.configure(from_=self.canvas_size[0] / 2 - self.image_size[0] / 2,
+                                                 to=self.canvas_size[0] / 2 + self.image_size[0] / 2,
+                                                 value=self.canvas_size[0]/2)
+            self.panel.offset_y_slider.configure(from_=self.canvas_size[1] / 2 - self.image_size[1] / 2,
+                                                 to=self.canvas_size[1] / 2 + self.image_size[1] / 2,
+                                                 value=self.canvas_size[1]/2)
+            self.panel.tile_combobox.set(self.panel.tiles[0])
+            self.panel.on_tile_change(self)
+            self.canvas_modifier.update_text(params=self.panel.params)
         return image,image.size

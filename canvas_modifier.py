@@ -116,3 +116,5 @@ class CanvasModifier:
                 font=(self.font,self.font_size),
                 angle=self.rotation
             )
+
+
