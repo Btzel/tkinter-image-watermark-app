@@ -1,5 +1,5 @@
 # Image Watermarking Desktop App
-A desktop application built with Python and Tkinter for managing and watermarking images, featuring a modern interface with theme customization and resolution control.
+A sophisticated desktop application built with Python and Tkinter for adding customizable watermarks to images, featuring an advanced UI with theme customization and dynamic text controls.
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue)
 ![Tkinter](https://img.shields.io/badge/Tkinter-GUI-orange)
@@ -7,129 +7,163 @@ A desktop application built with Python and Tkinter for managing and watermarkin
 ![Platform](https://img.shields.io/badge/Platform-Desktop-purple)
 
 ## 🎯 Overview
-A desktop application under active development that currently provides:
-1. Image batch loading and preview
-2. Customizable interface themes (Light/Dark)
-3. Multiple resolution support (800x600/1280x720)
-4. Scrollable image gallery
-5. Modern tabbed interface
-
-🚧 **Work In Progress**: Watermarking functionality is currently under development.
-
-### Planned Features
-- Image watermarking capabilities
-- Watermark customization options
-- Batch watermark processing
-- Export functionality
-- Additional image operations
+A professional watermarking tool that provides:
+1. Advanced text watermarking functionality
+2. Multi-image batch processing
+3. Real-time watermark preview
+4. Customizable text styling
+5. Grid-based watermark tiling
 
 ## 🖼️ Features
-### Interface Elements
-- Modern tabbed interface
-- Dark/Light theme support
-- Resolution adjustment (800x600/1280x720)
-- Scrollable image gallery
-- Add images button
+### Watermark Customization
+- Text content and color
+- Font selection and sizing
+- Rotation control
+- Position adjustment
+- Grid tiling options
 
-### Image Management
-- Multi-format support (JPEG, PNG, WEBP, ICO)
-- Batch image loading
-- Image preview thumbnails
-- Dynamic resizing
-- Grid-based gallery
+### Interface Elements
+- Dark/Light theme support
+- Multiple resolution support (800x600/1280x720)
+- Tabbed image interface
+- Scrollable image gallery
+- Real-time preview
 
 ## 🔧 Technical Components
-### Resolution Management
+### Watermark Control System
 ```python
-def change_resolution(self, root, resolution):
-    window_width, window_height = resolution[0], resolution[1]
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
+def create_repeating_grid_text(self):
+    y_grid_length = (self.image_bottom_border - self.image_top_border)
+    y_step = y_grid_length / self.spacing
+    x_grid_length = (self.image_right_border - self.image_left_border)
+    x_step = x_grid_length / self.spacing
     
-    x = (screen_width // 2) - (window_width // 2)
-    y = (screen_height // 2) - (window_height // 2) - 60
-    root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+    # Create grid of watermarks
+    while y_start_point <= y_end_point:
+        x_start_point = x_step / 2
+        while x_start_point <= x_end_point:
+            self.create_watermark_at_position(x_start_point, y_start_point)
 ```
 
 ### Key Features
-1. **Interface Customization**
-   - Theme switching
-   - Resolution adjustment
-   - Window positioning
-   - Style management
+1. **Watermark Customization**
+   - Text styling
+   - Position control
+   - Rotation adjustment
+   - Grid spacing
+   - Color selection
 
 2. **Image Processing**
-   - Multi-format support
+   - Multiple format support
    - Batch processing
-   - Dynamic resizing
-   - Preview generation
+   - Size preservation
+   - Quality control
+   - Export options
 
 3. **UI Components**
-   - Navigation bar
+   - Navigation system
    - Image gallery
-   - Scrollable view
-   - Custom styling
+   - Control panels
+   - Theme management
+   - Resolution control
 
 ## 💻 Implementation Details
 ### Class Structure
 - `Interface`: Main application window
-- `NavigationBar`: Menu system
-- `FrameNotebook`: Image gallery
-- Custom styling implementation
+- `ImagePanel`: Watermark control panel
+- `CanvasModifier`: Watermark rendering
+- `FrameNotebook`: Image management
 
-### Component Management
-- Centralized window positioning
-- Dynamic image resizing
-- Theme management
-- Event handling
+### Watermark Controls
+- Font and size selection
+- Color picker
+- Position sliders
+- Rotation control
+- Grid spacing
 
-## 🚀 Usage
-1. Install required packages:
-```bash
-pip install pillow
-```
+## 📘 How to Use
 
-2. Run the application:
-```bash
-python main.py
-```
+### Loading Images
+1. Launch the application
+2. Click the "Add Images" buttons to upload image files
+3. Select one or multiple images from your computer
+4. Your images will appear in the scrollable gallery
 
-3. Use the interface:
-   - Click "Add Images" to load images
-   - Use Options menu for customization
-   - Navigate through image gallery
-   - Apply operations to selected images
+### Adding Watermarks
+1. Click on an image in the gallery to open it in a new tab
+2. Use the right panel to customize your watermark:
+   - Enter text in the "Text" field
+   - Choose color using "Pick Color" button
+   - Select font from the dropdown menu
+   - Adjust font size using the slider
+   - Control rotation with the rotation slider
+
+### Position and Layout
+1. Adjust watermark position:
+   - Use "Offset X" slider for horizontal position
+   - Use "Offset Y" slider for vertical position
+2. Choose watermark pattern:
+   - Select "No Tile" for single watermark
+   - Choose "Repeated Grid" for pattern
+   - Adjust spacing when using grid pattern
+
+### Saving Your Work
+1. Click "Save Image" button
+2. Choose save location and format
+3. Your watermarked image will be saved in the selected format
+
+### Additional Features
+- Change resolution: Options → Resolution
+- Switch themes: Options → Theme
+- Use mouse wheel to scroll through gallery
+- Multiple image tabs can be open simultaneously
 
 ## 🎯 Features
-### Interface Controls
-- Theme switching (Light/Dark)
-- Resolution adjustment
-- Image addition
-- Gallery navigation
+### Watermark Options
+- Text content editing
+- Font customization
+- Color selection
+- Position control
+- Grid tiling
 
 ### Image Operations
-- Multiple format support
-- Batch processing
+- Multi-format support (JPEG, PNG, WEBP, ICO)
+- Batch image loading
 - Preview generation
-- Gallery management
+- Size preservation
+- Export options
 
 ## 🛠️ Project Structure
 ```
-image-watermark-app/
+watermark-app/
 ├── main.py              # Application entry
 ├── interface.py         # Main window
+├── image_panel.py       # Watermark controls
+├── canvas_modifier.py   # Watermark rendering
 ├── interface_navbar.py  # Navigation
-├── interface_notebook.py# Image gallery
-└── add_image.png       # Default icon
+├── interface_notebook.py# Image management
+└── notebook_style.py    # UI styling
 ```
 
-## 📊 Supported Formats
-- JPEG/JPG
-- PNG
-- WEBP
-- ICO
+## 🎨 Example Output
 
-Images can be loaded from any directory, with desktop as the default starting location.
+![Watermark Example](./copyright.png)
+
+*Example of a photo with repeated "Copyright©" watermark using grid pattern*
+
+Features demonstrated in this example:
+- Grid pattern watermarking
+- Text rotation
+- Consistent spacing
+- Professional copyright protection
+- Full image coverage
+
+Settings used for this example:
+- Text: "Copyright©"
+- Pattern: Repeated Grid
+- Rotation: 45 degrees
+- Grid Spacing: 11
+- White text color
 
 ## 📝 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
