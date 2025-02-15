@@ -33,7 +33,7 @@ class ImageTab:
         self.canvas_modifier = CanvasModifier(self.canvas,self.canvas_size,self.image_size)
 
         #panel
-        self.panel = ImagePanel(self.tab,image_number,
+        self.panel = ImagePanel(self.root,self.tab,image_number,
                                 self.canvas_size,
                                 self.image_size,self.canvas_modifier)
 

@@ -1,6 +1,7 @@
 class CanvasModifier:
     def __init__(self,canvas,canvas_size,image_size):
         self.canvas_size = (int(canvas_size[0]),int(canvas_size[1]))
+        self.image_size = image_size
         self.offset_x = canvas_size[0]/2
         self.offset_y = canvas_size[1]/2
         self.image_left_border = (canvas_size[0]/2 - image_size[0]/2)

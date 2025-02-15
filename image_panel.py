@@ -1,9 +1,11 @@
 from tkinter.ttk import Frame,Label,Style,Entry,Button,Combobox,Scale
-from tkinter import Canvas,StringVar,colorchooser,font
-
+from tkinter import Canvas,StringVar,colorchooser,font,filedialog
+import os
+from PIL import Image,ImageGrab
 class ImagePanel:
-    def __init__(self,tab,image_number,canvas_size,image_size,canvas_modifier):
+    def __init__(self,root,tab,image_number,canvas_size,image_size,canvas_modifier):
         #parent tab
+        self.root = root
         self.tab = tab
         self.color = "#FFFFFF"
         self.unique_style_name = "_" + str(image_number)
@@ -293,10 +295,34 @@ class ImagePanel:
             self.update_canvas_modifier()
 
     def save_image(self):
-        # will be developed after canvas modifier
-        pass
+        initial_dir = os.path.expanduser("~/Desktop")
+        file_path = filedialog.asksaveasfilename(
+            initialdir=initial_dir,
+            title='Choose your directory and file name',
+            filetypes=[
+                ('PNG', '*.png'),
+                ('JPEG', '*.jpeg;*.jpg'),
+                ('WEBP', '*.webp'),
+                ('ICO', '*.ico'),
+                ('All Images', '*.jpeg;*.jpg;*.png;*.webp;*.ico'),
 
-        #also change canvas text after canvas modifier
+            ],
+            defaultextension = '.png',
+        )
+        if file_path:
+            if not any(file_path.lower().endswith(ext) for ext in ('.png', '.jpeg', '.jpg', '.webp', '.ico')):
+                file_path += '.png'
+            canvas = self.canvas_modifier.canvas
+            canvas_size = self.canvas_modifier.canvas_size
+            image_size = self.canvas_modifier.image_size
+            bbox = canvas.bbox("all")
+            if bbox:
+                x = self.root.winfo_rootx() + canvas.winfo_x()+7 + (canvas_size[0]/2 - image_size[0]/2)
+                y = self.root.winfo_rooty() + canvas.winfo_y()+32 + (canvas_size[1]/2 - image_size[1]/2)
+                width = image_size[0]
+                height = image_size[1]
+                screenshot = ImageGrab.grab(bbox=(x, y, x + width, y + height))
+                screenshot.save(file_path)
     def on_canvas_resize(self, event):
         width = event.width - 4
         height = event.height - 4
